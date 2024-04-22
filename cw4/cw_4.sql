@@ -1,48 +1,50 @@
-create database firma;
+CREATE DATABASE firma;
 
-use firma;
-create schema rozliczenia;
+CREATE SCHEMA rozliczenia;
 
-create table rozliczenia.pracownicy (
-    id_pracownika INT PRIMARY KEY,
+USE firma;
+
+CREATE TABLE rozliczenia.pracownicy (
+    id_pracownika INTEGER NOT NULL PRIMARY KEY,
     imie VARCHAR(15) NOT NULL,
     nazwisko VARCHAR(20) NOT NULL,
     adres VARCHAR(40),
     telefon VARCHAR(20)
 );
 
-create table rozliczenia.godziny(
-    id_godziny int primary key,
-    data date not null,
-    liczba_godzin float not null,
-    id_pracownika int not null
+CREATE TABLE rozliczenia.godziny (
+    id_godziny INTEGER NOT NULL PRIMARY KEY,
+    data DATE NOT NULL,
+    liczba_godzin FLOAT NOT NULL,
+    id_pracownika INTEGER NOT NULL
+	FOREIGN KEY (id_pracownika) REFERENCES rozliczenia.pracownicy(id_pracownika)
 );
 
-
-create table rozliczenia.pensje (
-    id_pensji int primary key,
-    stanowisko varchar(30),
-    kwota double not null,
-    id_premii int
+CREATE TABLE rozliczenia.pensje (
+    id_pensji INTEGER NOT NULL PRIMARY KEY,
+    stanowisko VARCHAR(30),
+    kwota FLOAT NOT NULL,
+    id_premii INTEGER
+	FOREIGN KEY (id_premii) REFERENCES rozliczenia.premie(id_premii)
 );
 
-create table rozliczenia.premie (	
-    id_premii INT PRIMARY KEY,
+CREATE TABLE rozliczenia.premie (
+    id_premii INTEGER NOT NULL PRIMARY KEY,
     rodzaj VARCHAR(50),
-    kwota DOUBLE NOT NULL
+    kwota INTEGER 
 );
 
 ALTER TABLE rozliczenia.godziny
-ADD CONSTRAINT fk_pracownik
-FOREGIN KEY (id_pracownika)
+ADD CONSTRAINT id_pracownika
+FOREIGN KEY (id_pracownika)
 REFERENCES rozliczenia.pracownicy(id_pracownika);
 
 ALTER TABLE rozliczenia.pensje
-ADD CONTSTRAINT fk_premia
-FOREGIN KEY (id_premii)
-REFERENCES rozliczenia.premie(id_premii);
+ADD CONSTRAINT id_premii
+FOREIGN KEY (id_premii) 
+REFERENCES rozliczenia.pracownicy(id_premii);
 
--- Wypełnienie tabeli pracownicy danymi losowymi dla 10 pracowników
+-- 4. Wypełnienie tabeli pracownicy danymi losowymi dla 10 pracowników
 INSERT INTO rozliczenia.pracownicy (imie, nazwisko, adres, telefon)
 VALUES
     ('Adam', 'Nowak', 'ul. Lipowa 10, Warszawa', '111-222-333'),
@@ -56,7 +58,7 @@ VALUES
     ('Grzegorz', 'Wojciechowski', 'ul. Wiejska 2, Lublin', '123-456-789'),
     ('Anna', 'Kowalczyk', 'ul. Przemysłowa 6, Katowice', '987-654-321');
 
--- Wypełnienie tabeli godziny danymi losowymi dla 10 pracowników
+-- 4. Wypełnienie tabeli godziny danymi losowymi dla 10 pracowników
 INSERT INTO rozliczenia.godziny (data, liczba_godzin, id_pracownika)
 VALUES
     ('2024-04-01', 8, 1),
@@ -70,9 +72,8 @@ VALUES
     ('2024-04-09', 9, 9),
     ('2024-04-10', 8, 10);
 
-
--- Wypełnienie tabeli pensje danymi losowymi dla 10 pracowników
-INSERT INTO rozliczenia.pensje (stanowisko, kwota_brutto, id_premii)
+--4. Wypełnienie tabeli pensje danymi losowymi dla 10 pracowników
+INSERT INTO rozliczenia.pensje (stanowisko, kwota, id_premii)
 VALUES
     ('Kierownik', 5500, 1),
     ('Pracownik', 4500, 2),
@@ -85,8 +86,7 @@ VALUES
     ('Kierownik', 5600, 9),
     ('Pracownik', 4300, 10);
 
-
--- Wypełnienie tabeli premie danymi losowymi dla 10 pracowników
+--4. Wypełnienie tabeli premie danymi losowymi dla 10 pracowników
 INSERT INTO rozliczenia.premie (rodzaj, kwota)
 VALUES
     ('Premia za wyniki', 1200),
@@ -99,28 +99,27 @@ VALUES
     ('Premia za wyniki', 1400),
     ('Premia za staż', 850),
     ('Premia kwartalna', 950);
-
-
+	
+--5. wyświetlenie nazwisk i adresów
 SELECT nazwisko, adres
 FROM rozliczenia.pracownicy;
 
-
-SELECT 
-    DATENAME(dw, data) AS dzien_tygodnia, 
-    DATENAME(month, data) AS miesiac
+--6. przekonwertowanie daty
+SELECT data
+    DATEPART(DW, data) AS dzien_tygodnia, 
+    DATEPART(MONTH, data) AS miesiac
 FROM 
     rozliczenia.godziny;
 
 
--- Zmiana nazwy kolumny kwota na kwota_brutto (dla PostgreSQL)
+-- 7. Zmiana nazwy kolumny kwota na kwota_brutto
 ALTER TABLE rozliczenia.pensje
-RENAME COLUMN kwota TO kwota_brutto;
+RENAME COLUMN kwota to kwota_brutto;
 
--- Dodanie nowej kolumny kwota_netto
+-- 7. Dodanie nowej kolumny kwota_netto
 ALTER TABLE rozliczenia.pensje
 ADD COLUMN kwota_netto DECIMAL(10,2);
 
--- Obliczenie i aktualizacja wartości kwoty netto
+-- 7. Obliczenie i aktualizacja wartości kwoty netto
 UPDATE rozliczenia.pensje
 SET kwota_netto = kwota_brutto / 1.23; -- 
-
