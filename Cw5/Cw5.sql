@@ -1,14 +1,16 @@
-use firma;
+create database firma;
 
 create schema ksiegowosc;
 
+use firma;
+
 create table ksiegowosc.pracownicy (
-    id_pracownika INT PRIMARY KEY,
+    id_pracownika INT NOT NULL PRIMARY KEY,
     imie VARCHAR(15) NOT NULL,
     nazwisko VARCHAR(20) NOT NULL,
     adres VARCHAR(40),
     telefon VARCHAR(20)
-) COMMENT 'Tabela przechowująca dane o pracownikach';
+) COMMENT 'Tabela z danymi pracowników';
 
 create table ksiegowosc.godziny(
     id_godziny int primary key,
@@ -16,7 +18,7 @@ create table ksiegowosc.godziny(
     liczba_godzin float not null,
     id_pracownika int not null,
     FOREIGN KEY (id_pracownika) REFERENCES ksiegowosc.pracownicy(id_pracownika)
-) COMMENT 'Tabela przechowująca dane o ilosci przepracowanych godzin';
+) COMMENT 'Tabela z ilością wypracowanych godzin';
 
 
 create table ksiegowosc.pensja (
@@ -143,16 +145,20 @@ WHERE imie LIKE 'J%';
 SELECT *
 FROM ksiegowosc.pracownicy
 WHERE nazwisko LIKE '%n%' AND imie LIKE '%a';
-
+	
+	ALTER TABLE ksiegowosc.godziny 
+	ADD liczba_nadgodzin INT;
+	UPDATE ksiegowosc.godziny
+	SET liczba_nadgodzin = CASE
+		WHEN (liczba_godzin * 20) > 160 THEN (liczba_godzin * 20) - 160
+		ELSE 0
+	END;
 #f
-SELECT p.imie, p.nazwisko, SUM(g.liczba_godzin) - 160 AS nadgodziny
-FROM ksiegowosc.pracownicy p
-JOIN ksiegowosc.godziny g ON p.id_pracownika = g.id_pracownika
-GROUP BY p.imie, p.nazwisko;
+SELECT imie, nazwisko, liczba_nadgodzin FROM ksiegowosc.pracownicy p
+JOIN ksiegowosc.godziny g ON g.id_pracownika = p.id_pracownika;
 
 #g
-SELECT p.imie, p.nazwisko
-FROM ksiegowosc.pracownicy p
+SELECT p.imie, p.nazwisko FROM ksiegowosc.pracownicy p
 JOIN ksiegowosc.wynagrodzenie w ON w.id_pracownika = p.id_pracownika
 JOIN ksiegowosc.pensja pen ON w.id_pensji = pen.id_pensji
 WHERE pen.kwota BETWEEN 1500 AND 4000;
