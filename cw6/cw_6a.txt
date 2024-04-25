@@ -1,0 +1,23 @@
+1.
+Zależności funkcyjne dla tabeli zamowienia:
+id_produktu -> nazwa_produktu, cena_produktu, VAT
+id_klienta -> nazwa_klienta, data_zamowienia, ilosc, id_produktu
+cena_produktu, ilosc -> suma_netto
+suma_netto, VAT -> suma_brutto
+
+2.
+Klucze kandydujące dla tabeli zamowienia:
+(id_produktu, id_klienta, data_zamowienia) - klucz główny
+(nazwa_klienta, nazwa_produktu, data_zamowienia)
+(id_produktu, nazwa_klienta, data_zamowienia)
+(nazwa_produktu, id_klienta, data_zamowienia) 
+
+3.
+Zależności funkcyjne dla tabeli pomieszczenia:
+id_pomieszczenia -> numer_pomieszczenia, id_budynku, numer_pomieszczenia, powierzchnia, liczba_okien, liczba_drzwi
+id_budynku -> ulica, miasto, kod_pocztowy
+kod_pocztowy -> miasto
+
+Klucze kandydujące dla tabeli pomieszczenia:
+(id_pomieszczenia) - klucz główny
+(numer_pomieszczenia, id_budynku)
